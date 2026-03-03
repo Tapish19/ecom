@@ -1,0 +1,79 @@
+{% extends 'ecom/header.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">Your Cart</h2>
+    <div class="row">
+        {% if products %}
+            {% for item in products %}
+            <div class="col-md-4 mb-4">
+                <div class="card product-card">
+                    <img src="{{ item.product.image.url }}" class="card-img-top" alt="{{ item.product.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.product.name }}</h5>
+                        <p class="card-text">Product Price: ₹{{ item.product.price }}</p>
+                        <div class="quantity-input">
+                            <a href="{% url 'add_to_cart' id=item.product.pk op='sub'%}?quantity=1"><button class="btn btn-outline-secondary btn-minus" type="button" data-product-id="{{ item.product.pk }}">-</button></a>
+                            <input type="number" class="form-control quantity" value="{{ item.quantity }}" min="1" data-product-id="{{ item.product.pk }}">
+                            <a href="{% url 'add_to_cart' id=item.product.pk op='add'%}?quantity=1"><button class="btn btn-outline-secondary btn-plus" type="button" data-product-id="{{ item.product.pk }}">+</button></a>
+                        </div>
+                        <p class="card-text">Total Price: ₹{{ item.total_price }}</p>
+                        <a href="{% url 'remove_from_cart' id=item.product.pk %}" class="btn btn-primary">Remove from Cart</a>
+                        <a href="{% url 'add_to_orders' id=item.product.pk %}?quantity=1" class="btn btn-primary add-to-order-btn" data-product-id="{{ item.product.pk }}">Buy Now</a>                   
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="container">
+                <a href="{% url 'buy_all' %}" class="btn btn-primary">Buy All</a>
+            </div>
+            <div class="container">
+                <h5 class="card-title">Total Price: ₹{{ total_price }}</h5>
+            </div>
+        {% else %}
+        <h4>Your cart is empty.<a href="{% url 'product_list' %}"> Please add items to your cart.</a></h4>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {  
+        const updateAddToOrderUrl = (productId) => {
+            const quantityInput = document.querySelector(`input.quantity[data-product-id="${productId}"]`);
+            const addToOrderBtn = document.querySelector(`a.add-to-order-btn[data-product-id="${productId}"]`);
+            const quantity = quantityInput.value;
+            const baseUrl = "{% url 'add_to_orders' 0 %}".replace('0', productId);
+            addToOrderBtn.href = `${baseUrl}?quantity=${quantity}`;
+        };
+    
+        document.querySelectorAll('.btn-minus').forEach(button => {
+            button.addEventListener('click', () => {
+                const productId = button.getAttribute('data-product-id');
+                const quantityInput = document.querySelector(`input.quantity[data-product-id="${productId}"]`);
+                if (quantityInput.value > 1) {
+                    quantityInput.value = parseInt(quantityInput.value) - 1;
+                    updateAddToOrderUrl(productId);
+                }
+            });
+        });
+    
+        document.querySelectorAll('.btn-plus').forEach(button => {
+            button.addEventListener('click', () => {
+                const productId = button.getAttribute('data-product-id');
+                const quantityInput = document.querySelector(`input.quantity[data-product-id="${productId}"]`);
+                quantityInput.value = parseInt(quantityInput.value) + 1;
+                updateAddToOrderUrl(productId);
+            });
+        });
+    
+        // Ensure URLs are updated on initial page load
+        document.querySelectorAll('input.quantity').forEach(input => {
+            const productId = input.getAttribute('data-product-id');
+            updateAddToOrderUrl(productId);
+        });
+    });
+    
+</script>
+
+{% endblock %}

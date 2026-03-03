@@ -1,0 +1,77 @@
+{% extends 'ecom/header.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero">
+    <h1>Welcome to Grocery Store</h1>
+</div>
+
+<!-- Featured Products Section -->
+<div class="container my-5">
+    <h2 class="text-center mb-4">Featured Products</h2>
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card product-card">
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">₹{{ product.price }}</p>
+                    <a href="{% url 'add_to_cart' id=product.pk op='add'%}" class="btn btn-primary">Add to Cart</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- About Us Section -->
+<div class="container my-5">
+    <h2 class="text-center mb-4">About Us</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{% static 'ecom/images/about_us.jpg' %}" class="img-fluid" alt="About Us">
+        </div>
+        <div class="col-md-6">
+            <h3>Who We Are</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque fermentum, lorem vel tempus posuere, turpis odio vestibulum magna, eget ultricies risus arcu vel turpis.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque fermentum, lorem vel tempus posuere, turpis odio vestibulum magna, eget ultricies risus arcu vel turpis.</p>
+            <a href="{% url 'aboutUs' %}" class="btn btn-primary">Read More</a>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Section -->
+<div class="container my-5">
+    <h2 class="text-center mb-4">Contact Us</h2>
+    <form method="POST" action="{% url 'contact_form' %}">
+        {% csrf_token %}
+        <div class="form-group col-md-6">
+            <label for="inputName">Subject</label>
+            <input type="text" class="form-control" id="inputName" placeholder="Subject" name="subject">
+        </div>
+        <div class="form-group">
+            <label for="inputMessage">Message</label>
+            <textarea class="form-control" id="inputMessage" rows="4" placeholder="Your message" name="message"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+    {% if messages %}
+    <div class="messages" id="message_container">
+        {% for message in messages%}
+        <h5 style="color: green;">{{ message }}</h5>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<script src="{% static 'ecom/js/scripts.js' %}"></script>
+<script>
+    var message_ele = document.getElementById("message_container");
+
+    setTimeout(function(){ 
+    message_ele.style.display = "none"; 
+    }, 10000);
+</script>
+{% endblock %}
